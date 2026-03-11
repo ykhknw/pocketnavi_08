@@ -1,0 +1,148 @@
+# PocketNavi - 建築物検索データベース
+# Robots.txt for kenchikuka.com
+
+# 全検索エンジン向けの基本設定
+User-agent: *
+Allow: /
+
+# クロール遅延設定（サーバー負荷軽減）
+Crawl-delay: 1
+
+# サイトマップの場所
+Sitemap: https://kenchikuka.com/sitemap.php
+
+# ===========================================
+# セキュリティ・管理用ファイルの除外
+# ===========================================
+
+# 管理用スクリプト
+Disallow: /generate-sitemap.php
+Disallow: /index_thumb.php
+Disallow: /admin/
+Disallow: /update_youtube/
+
+# ログファイルと設定ファイル
+Disallow: /logs/
+Disallow: /config/
+Disallow: /src/
+Disallow: /database/
+Disallow: /backup/
+Disallow: /temp/
+Disallow: /tmp/
+
+# システムファイル
+Disallow: /.htaccess
+Disallow: /.htpasswd
+Disallow: /web.config
+Disallow: /composer.json
+Disallow: /composer.lock
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# ===========================================
+# 重複コンテンツ防止
+# ===========================================
+
+# 検索パラメータ（重複コンテンツを避けるため）
+Disallow: /*?debug=*
+Disallow: /*?page=*
+Disallow: /*?lang=*&page=*
+Disallow: /*?q=*&page=*
+Disallow: /*?prefectures=*&page=*
+Disallow: /*?architects_slug=*&page=*
+
+# セッション関連パラメータ
+Disallow: /*?PHPSESSID=*
+Disallow: /*?session=*
+Disallow: /*?token=*
+
+# ソート・フィルター関連
+Disallow: /*?sort=*
+Disallow: /*?filter=*
+Disallow: /*?order=*
+
+# ===========================================
+# プライバシー保護
+# ===========================================
+
+# ユーザー関連ページ（存在する場合）
+Disallow: /user/
+Disallow: /users/
+Disallow: /profile/
+Disallow: /account/
+Disallow: /login/
+Disallow: /register/
+Disallow: /signup/
+
+# 個人情報関連
+Disallow: /contact.php?*
+Disallow: /contact/*
+
+# ===========================================
+# 許可するリソース
+# ===========================================
+
+# 静的リソース（明示的に許可）
+Allow: /assets/
+Allow: /assets/css/
+Allow: /assets/js/
+Allow: /assets/images/
+Allow: /assets/fonts/
+
+# 建築物画像
+Allow: /screen_shots_3_webp/
+Allow: /pictures/
+
+# ファビコン
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /apple-touch-icon.png
+
+# ===========================================
+# 主要検索エンジン向けの個別設定
+# ===========================================
+
+# Google Bot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yahoo Bot
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Yandex Bot
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+# ===========================================
+# 悪意のあるボット対策
+# ===========================================
+
+# 既知の悪意のあるボット
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+# 過度なクロールを行うボット
+User-agent: *
+Disallow: /*?*&*&*&*&*
+Disallow: /*?*&*&*&*&*&*

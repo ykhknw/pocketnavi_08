@@ -1,0 +1,15 @@
+# キャッシュディレクトリの保護
+Order Deny,Allow
+Deny from all
+
+# PHPファイルの実行を禁止
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# ロックファイルへのアクセスを禁止
+<Files "*.lock">
+    Order Deny,Allow
+    Deny from all
+</Files>

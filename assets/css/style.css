@@ -1,0 +1,672 @@
+/* Custom CSS for PocketNavi */
+
+/* 検索結果番号バッジ */
+.search-number-badge {
+    background-color: #2563eb;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* 建築家バッジ */
+.architect-badge {
+    background-color: #f0f4ff;
+    color: #4263eb;
+    border: 1px solid #e6eeff;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(66, 99, 235, 0.1);
+}
+
+.architect-badge:hover {
+    background-color: #e6eeff;
+    border-color: #d1d9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(66, 99, 235, 0.15);
+    color: #4263eb;
+    text-decoration: none;
+}
+
+.architect-badge i {
+    font-size: 10px;
+}
+
+/* 建物用途バッジ */
+.building-type-badge {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(108, 117, 125, 0.1);
+}
+
+.building-type-badge:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.15);
+}
+
+.building-type-badge i {
+    font-size: 10px;
+}
+
+/* 都道府県バッジ */
+.prefecture-badge {
+    background-color: #f0f9f0;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(22, 163, 74, 0.1);
+}
+
+.prefecture-badge:hover {
+    background-color: #dcfce7;
+    border-color: #86efac;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(22, 163, 74, 0.15);
+}
+
+.prefecture-badge i {
+    font-size: 10px;
+}
+
+/* 建築年バッジ */
+.completion-year-badge {
+    background-color: #ffffff !important;
+    color: #6c757d !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 16px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px rgba(108, 117, 125, 0.1) !important;
+}
+
+.completion-year-badge:hover {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.15);
+}
+
+.completion-year-badge i {
+    font-size: 10px;
+}
+
+/* 基本スタイル */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* ヘッダー */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* ドロップダウンメニューのz-indexを調整 */
+.navbar .dropdown-menu {
+    z-index: 1050 !important; /* 地図よりも高いz-indexに設定 */
+}
+
+.navbar .dropdown {
+    position: relative;
+    z-index: 1051 !important; /* ドロップダウントリガーも高いz-indexに設定 */
+}
+
+/* カード */
+.building-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.building-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.building-card:hover .card-img-top {
+    opacity: 0.9;
+}
+
+/* 検索フォーム */
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.form-control:focus {
+    box-shadow: none;
+}
+
+/* 地図 */
+#map {
+    border-radius: 0.375rem;
+    position: relative;
+    z-index: 1; /* 地図のz-indexを明示的に設定 */
+}
+
+/* バッジ */
+.badge {
+    font-size: 0.75rem;
+}
+
+/* ページネーション - より強力なセレクタを使用 */
+nav[aria-label="Page navigation"] .pagination .page-link,
+.pagination .page-link {
+    color: #0d6efd !important;
+    border: 1px solid #dee2e6 !important;
+    transition: all 0.2s ease !important;
+    /* ボタンサイズを大きく */
+    padding: 0.75rem 1rem !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    border-radius: 0.5rem !important;
+    margin: 0 0.25rem !important;
+}
+
+/* アクティブなページのスタイル - より具体的なセレクタを使用 */
+nav[aria-label="Page navigation"] .pagination .page-item.active .page-link,
+nav[aria-label="Page navigation"] .pagination .page-link.active-page,
+nav[aria-label="Page navigation"] .pagination .page-item.active span.page-link.active-page,
+.pagination .page-item.active .page-link,
+.pagination .page-link.active-page,
+.pagination .page-item.active span.page-link.active-page {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+nav[aria-label="Page navigation"] .pagination .page-link:hover,
+.pagination .page-link:hover {
+    color: #0a58ca !important;
+    background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+nav[aria-label="Page navigation"] .pagination .page-item.active .page-link:hover,
+nav[aria-label="Page navigation"] .pagination .page-link.active-page:hover,
+nav[aria-label="Page navigation"] .pagination .page-item.active span.page-link.active-page:hover,
+.pagination .page-item.active .page-link:hover,
+.pagination .page-link.active-page:hover,
+.pagination .page-item.active span.page-link.active-page:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+    color: #ffffff !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4) !important;
+}
+
+/* アクティブなページのspan要素のスタイル - より強力なセレクタ */
+nav[aria-label="Page navigation"] ul.pagination li.page-item.active span.page-link.active-page,
+ul.pagination li.page-item.active span.page-link.active-page {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1rem !important;
+    border-radius: 0.5rem !important;
+    margin: 0 0.25rem !important;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+/* 省略記号（...）のスタイル */
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: transparent;
+    border-color: #dee2e6;
+    cursor: default;
+    pointer-events: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* ページネーション全体のレイアウト */
+.pagination {
+    margin: 2rem 0;
+    padding: 1rem 0;
+}
+
+.pagination .page-item {
+    margin: 0 0.125rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .pagination .page-link {
+        padding: 0.5rem 0.75rem;
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 0.9rem;
+        margin: 0 0.125rem;
+    }
+    
+    .pagination .page-item {
+        margin: 0 0.0625rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 0.4rem 0.6rem;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 0.85rem;
+    }
+}
+
+/* サイドバー */
+.sticky-top {
+    z-index: 1020;
+    max-height: calc(100vh - 40px); /* ビューポートの高さから余白を引く */
+    overflow-y: auto; /* 縦スクロールを有効化 */
+    overflow-x: hidden; /* 横スクロールは無効化 */
+}
+
+/* サイドバーコンテナの追加スタイル */
+.sidebar-container {
+    /* スクロールバーのスタイリング */
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.sidebar-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.sidebar-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* サイドバー内の地図コンテナ */
+.sticky-top .card {
+    position: relative;
+    z-index: 1;
+}
+
+/* 小さい画面でのサイドバー最適化 */
+@media (max-height: 800px) {
+    .sticky-top {
+        max-height: calc(100vh - 20px);
+    }
+    
+    /* 地図の高さを調整 */
+    .sticky-top #map {
+        height: 300px !important;
+    }
+}
+
+@media (max-height: 600px) {
+    .sticky-top {
+        max-height: calc(100vh - 10px);
+    }
+    
+    /* 地図の高さをさらに縮小 */
+    .sticky-top #map {
+        height: 250px !important;
+    }
+    
+    /* カードの余白を縮小 */
+    .sticky-top .card {
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .sticky-top .card-body {
+        padding: 0.75rem !important;
+    }
+}
+
+@media (max-height: 500px) {
+    .sticky-top {
+        max-height: calc(100vh - 5px);
+    }
+    
+    /* 地図の高さを最小限に */
+    .sticky-top #map {
+        height: 200px !important;
+    }
+    
+    /* カードの余白を最小限に */
+    .sticky-top .card {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .sticky-top .card-body {
+        padding: 0.5rem !important;
+    }
+    
+    .sticky-top .card-header {
+        padding: 0.5rem !important;
+    }
+}
+
+/* リストグループ */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* フッター */
+footer {
+    margin-top: auto;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .building-card {
+        margin-bottom: 1rem;
+    }
+    
+    .sticky-top {
+        position: static !important;
+        max-height: none !important; /* モバイルでは高さ制限を解除 */
+        overflow-y: visible !important; /* モバイルではスクロールを無効化 */
+    }
+    
+    /* モバイルでのサイドバー最適化 */
+    .sidebar-container {
+        padding: 0.5rem;
+    }
+    
+    .sidebar-container .card {
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-container #map {
+        height: 300px !important;
+    }
+}
+
+/* タブレット向けの調整 */
+@media (max-width: 992px) and (min-width: 769px) {
+    .sticky-top {
+        max-height: calc(100vh - 30px);
+    }
+    
+    .sticky-top #map {
+        height: 350px !important;
+    }
+}
+
+/* ローディング */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* カスタムマーカー */
+.custom-marker {
+    background: none !important;
+    border: none !important;
+}
+
+/* ボタン */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* 詳細ページ */
+.building-detail-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+/* エラーメッセージ */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* 検索結果のハイライト */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+}
+
+/* 地図のコントロール */
+.leaflet-control-zoom {
+    border-radius: 0.375rem !important;
+}
+
+.leaflet-control-zoom a {
+    border-radius: 0.375rem !important;
+}
+
+/* 言語切り替えボタン */
+.language-switch {
+    background: white;
+    color: #374151 !important;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 6px 12px !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-decoration: none !important;
+}
+
+.language-switch:hover {
+    background: #f9fafb;
+    color: #111827 !important;
+    border-color: #9ca3af;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none !important;
+}
+
+.language-switch:focus {
+    color: #111827 !important;
+    text-decoration: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+}
+
+.language-switch .language-text {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 4px;
+}
+
+.language-switch .language-arrow {
+    transition: transform 0.2s ease;
+    color: #6b7280;
+}
+
+.language-switch:hover .language-arrow {
+    transform: rotate(180deg);
+    color: #374151;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .language-switch {
+        padding: 5px 10px !important;
+        font-size: 13px;
+    }
+    
+    .language-switch .language-text {
+        font-size: 13px;
+    }
+    
+    .language-switch i {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+
+/* フィルターバッジの×ボタン */
+.filter-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.filter-remove-btn {
+    color: #6b7280 !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+    margin-left: 4px;
+}
+
+.filter-remove-btn:hover {
+    color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+.filter-remove-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ページネーション強制適用 - 最強のセレクタ */
+body .container-fluid .pagination .page-link {
+    padding: 0.75rem 1rem !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    border-radius: 0.5rem !important;
+    margin: 0 0.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .container-fluid .pagination .page-item.active .page-link,
+body .container-fluid .pagination .page-item.active span.page-link {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
+    transform: scale(1.05) !important;
+}
+
+/* 遅延読み込み用のスタイルは削除 - ブラウザの自動最適化に任せる */
+

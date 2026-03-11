@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吹き出しデザインサンプル</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+            background-color: #f5f5f5;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        /* パターン1: 上部にしっぽがある吹き出し */
+        .speech-bubble-top {
+            position: relative;
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble-top::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 12px solid #ffffff;
+        }
+
+        .speech-bubble-top::after {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 50px;
+            width: 0;
+            height: 0;
+            border-left: 13px solid transparent;
+            border-right: 13px solid transparent;
+            border-bottom: 13px solid #e0e0e0;
+            z-index: -1;
+        }
+
+        /* パターン2: 左側にしっぽがある吹き出し */
+        .speech-bubble-left {
+            position: relative;
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble-left::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 30px;
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-right: 12px solid #ffffff;
+        }
+
+        .speech-bubble-left::after {
+            content: '';
+            position: absolute;
+            left: -14px;
+            top: 30px;
+            width: 0;
+            height: 0;
+            border-top: 13px solid transparent;
+            border-bottom: 13px solid transparent;
+            border-right: 13px solid #e0e0e0;
+            z-index: -1;
+        }
+
+        /* パターン3: 下部にしっぽがある吹き出し（ロボットアイコン付き） */
+        .speech-bubble-wrapper {
+            position: relative;
+            margin: 30px 0 100px 0; /* 下部に十分な余白を確保 */
+        }
+
+        .speech-bubble-bottom {
+            position: relative;
+            background-color: #ffffff;
+            border: 2px solid #d0d0d0;
+            border-radius: 24px; /* 12pxから24pxに変更（2倍） */
+            padding: 20px;
+            margin-bottom: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble-bottom::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 80px; /* ロボットの左側に配置（ロボット幅60px + 余白20px） */
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent; /* 左側を長く（非対称） */
+            border-right: 10px solid transparent; /* 右側を短く（非対称） */
+            border-top: 20px solid #ffffff;
+            z-index: 2;
+        }
+
+        .speech-bubble-bottom::after {
+            content: '';
+            position: absolute;
+            bottom: -22px;
+            right: 80px; /* ロボットの左側に配置（ロボット幅60px + 余白20px） */
+            width: 0;
+            height: 0;
+            border-left: 32px solid transparent; /* 左側を長く（非対称） */
+            border-right: 12px solid transparent; /* 右側を短く（非対称） */
+            border-top: 22px solid #d0d0d0;
+            z-index: 1;
+        }
+
+        /* ロボットアイコン（話者） */
+        .speaker-robot {
+            position: absolute;
+            bottom: -70px;
+            right: 20px; /* 右寄せに変更 */
+            width: 60px;
+            height: 60px;
+            z-index: 3;
+        }
+
+        .speaker-robot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* パターン5用: タイトルとロボットを吹き出しの上に配置（Image2の位置関係） */
+        .pattern5-header {
+            display: flex;
+            align-items: flex-end; /* 下端を揃える */
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 32px; /* しっぽ（上向き）が入り込むスペースを確保 */
+        }
+
+        .pattern5-header .catchphrase {
+            margin-bottom: 0; /* header内では余白なし */
+        }
+
+        /* パターン5のロボットは通常のabsolute配置を打ち消して右上に置く */
+        .pattern5-header .speaker-robot {
+            position: relative;
+            bottom: auto;
+            right: auto;
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            margin-right: 20px; /* 右端から少し左へ */
+            top: 6px; /* ほんの少し下へ */
+        }
+
+        /* パターン6用: パターン5より吹き出しを上に近づける（ヘッダー下余白を縮小） */
+        .pattern6-header {
+            display: flex;
+            align-items: flex-end; /* 下端を揃える */
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 14px; /* パターン5より詰める */
+        }
+
+        .pattern6-header .catchphrase {
+            margin-bottom: 0;
+        }
+
+        .pattern6-header .speaker-robot {
+            position: relative;
+            bottom: auto;
+            right: auto;
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            margin-right: 20px; /* 右端から少し左へ */
+            top: 6px; /* ほんの少し下へ */
+        }
+
+        /* パターン4: 右側にしっぽがある吹き出し */
+        .speech-bubble-right {
+            position: relative;
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble-right::before {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 30px;
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 12px solid #ffffff;
+        }
+
+        .speech-bubble-right::after {
+            content: '';
+            position: absolute;
+            right: -14px;
+            top: 30px;
+            width: 0;
+            height: 0;
+            border-top: 13px solid transparent;
+            border-bottom: 13px solid transparent;
+            border-left: 13px solid #e0e0e0;
+            z-index: -1;
+        }
+
+        /* パターン5: 右上にしっぽがある吹き出し（ロボットアイコン付き） */
+        .speech-bubble-top-right {
+            position: relative;
+            background-color: #ffffff;
+            border: 2px solid #d0d0d0;
+            border-radius: 24px; /* 角丸を2倍に */
+            padding: 20px;
+            margin-top: 0;
+            margin-bottom: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 上辺から上向きのしっぽ（内側・白） */
+        .speech-bubble-top-right::before {
+            content: '';
+            position: absolute;
+            top: -20px; /* 吹き出しの上辺から上向き */
+            right: 80px; /* ロボットの左側に配置（ロボット幅60px + 余白20px） */
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent; /* 左側を長く（非対称） */
+            border-right: 5px solid transparent; /* 右側をより小さく（より垂直に） */
+            border-bottom: 20px solid #ffffff; /* 上向きの三角形 */
+            z-index: 2;
+        }
+
+        /* 上辺から上向きのしっぽ（外側・ボーダー） */
+        .speech-bubble-top-right::after {
+            content: '';
+            position: absolute;
+            top: -22px; /* 吹き出しの上辺から上向き */
+            right: 80px; /* ロボットの左側に配置（ロボット幅60px + 余白20px） */
+            width: 0;
+            height: 0;
+            border-left: 32px solid transparent; /* 左側を長く（非対称） */
+            border-right: 7px solid transparent; /* 右側をより小さく（より垂直に） */
+            border-bottom: 22px solid #d0d0d0; /* 上向きの三角形 */
+            z-index: 1;
+        }
+
+        /* テキストスタイル */
+        .speech-bubble-top p,
+        .speech-bubble-left p,
+        .speech-bubble-bottom p,
+        .speech-bubble-right p {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .speech-bubble-top p:last-child,
+        .speech-bubble-left p:last-child,
+        .speech-bubble-bottom p:last-child,
+        .speech-bubble-right p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* キャッチフレーズ用のスタイル */
+        .catchphrase {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* セクションタイトル */
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #666;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>吹き出しデザインサンプル</h1>
+
+        <div class="section-title">パターン1: 上部にしっぽ（キャッチフレーズの下に配置）</div>
+        <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+        <div class="speech-bubble-top">
+            <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+            <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。「人と自然と文化の共生」をテーマに掲げた展示空間は、壁で仕切られた閉鎖的な構成を避け、来館者が流れるように回遊できる開放的な構成となっている。</p>
+            <p>豊田市はトヨタ自動車の企業城下町として知られる一方、縄文時代からの豊かな歴史と自然を持つ地域でもある。坂茂はその二面性を受け止めながら、産業都市に静かな知的拠点を築いた。竣工からまだ日が浅いながら、すでに愛知を代表する現代建築として国内外から注目を集めている。</p>
+        </div>
+
+        <div class="section-title">パターン2: 左側にしっぽ</div>
+        <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+        <div class="speech-bubble-left">
+            <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+            <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。</p>
+        </div>
+
+        <div class="section-title">パターン3: 下部にしっぽ（ロボットアイコン付き）</div>
+        <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+        <div class="speech-bubble-wrapper">
+            <div class="speech-bubble-bottom">
+                <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+                <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。「人と自然と文化の共生」をテーマに掲げた展示空間は、壁で仕切られた閉鎖的な構成を避け、来館者が流れるように回遊できる開放的な構成となっている。</p>
+                <p>豊田市はトヨタ自動車の企業城下町として知られる一方、縄文時代からの豊かな歴史と自然を持つ地域でもある。坂茂はその二面性を受け止めながら、産業都市に静かな知的拠点を築いた。竣工からまだ日が浅いながら、すでに愛知を代表する現代建築として国内外から注目を集めている。</p>
+            </div>
+            <div class="speaker-robot">
+                <img src="assets/images/robot01.png" alt="話者">
+            </div>
+        </div>
+
+        <div class="section-title">パターン4: 右側にしっぽ</div>
+        <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+        <div class="speech-bubble-right">
+            <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+            <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。</p>
+        </div>
+
+        <div class="section-title">パターン5: 右上にしっぽ（ロボットアイコン付き）</div>
+        <div class="speech-bubble-wrapper">
+            <div class="pattern5-header">
+                <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+                <div class="speaker-robot">
+                    <img src="assets/images/robot01.png" alt="話者">
+                </div>
+            </div>
+            <div class="speech-bubble-top-right">
+                <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+                <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。「人と自然と文化の共生」をテーマに掲げた展示空間は、壁で仕切られた閉鎖的な構成を避け、来館者が流れるように回遊できる開放的な構成となっている。</p>
+                <p>豊田市はトヨタ自動車の企業城下町として知られる一方、縄文時代からの豊かな歴史と自然を持つ地域でもある。坂茂はその二面性を受け止めながら、産業都市に静かな知的拠点を築いた。竣工からまだ日が浅いながら、すでに愛知を代表する現代建築として国内外から注目を集めている。</p>
+            </div>
+        </div>
+
+        <div class="section-title">パターン6: 右上にしっぽ（パターン5より近づけた版）</div>
+        <div class="speech-bubble-wrapper">
+            <div class="pattern6-header">
+                <div class="catchphrase">大屋根の下に広がる知の原風景</div>
+                <div class="speaker-robot">
+                    <img src="assets/images/robot01.png" alt="話者">
+                </div>
+            </div>
+            <div class="speech-bubble-top-right">
+                <p>豊田市博物館は、2024年に豊田市の中心部に誕生した。設計者の坂茂は、木材や自然素材を独自の構造システムに昇華させることで知られるプリツカー賞建築家だ。その哲学は豊田市博物館においても遺憾なく発揮されている。</p>
+                <p>木と鉄を組み合わせたハイブリッド構造の大屋根が建物全体を大らかに覆い、内部には柔らかな自然光が降り注ぐ。「人と自然と文化の共生」をテーマに掲げた展示空間は、壁で仕切られた閉鎖的な構成を避け、来館者が流れるように回遊できる開放的な構成となっている。</p>
+                <p>豊田市はトヨタ自動車の企業城下町として知られる一方、縄文時代からの豊かな歴史と自然を持つ地域でもある。坂茂はその二面性を受け止めながら、産業都市に静かな知的拠点を築いた。竣工からまだ日が浅いながら、すでに愛知を代表する現代建築として国内外から注目を集めている。</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
