@@ -49,10 +49,10 @@ class QueryOptimizer {
      */
     private function addIndexHints($sql) {
         // 建築物テーブルのインデックスヒント
-        if (strpos($sql, 'buildings_table_3') !== false) {
+        if (strpos($sql, 'buildings_table_4') !== false) {
             $sql = str_replace(
-                'FROM buildings_table_3',
-                'FROM buildings_table_3 USE INDEX (idx_title, idx_location, idx_completion_years)',
+                'FROM buildings_table_4',
+                'FROM buildings_table_4 USE INDEX (idx_title, idx_location, idx_completion_years)',
                 $sql
             );
         }
@@ -210,7 +210,7 @@ class QueryOptimizer {
         
         // 建築物テーブルの推奨インデックス
         $recommendations[] = [
-            'table' => 'buildings_table_3',
+            'table' => 'buildings_table_4',
             'index' => 'idx_title_location',
             'columns' => ['title', 'location'],
             'type' => 'INDEX',
@@ -218,7 +218,7 @@ class QueryOptimizer {
         ];
         
         $recommendations[] = [
-            'table' => 'buildings_table_3',
+            'table' => 'buildings_table_4',
             'index' => 'idx_completion_years_photo',
             'columns' => ['completionYears', 'has_photo'],
             'type' => 'INDEX',
@@ -226,7 +226,7 @@ class QueryOptimizer {
         ];
         
         $recommendations[] = [
-            'table' => 'buildings_table_3',
+            'table' => 'buildings_table_4',
             'index' => 'idx_location_coords',
             'columns' => ['lat', 'lng'],
             'type' => 'INDEX',

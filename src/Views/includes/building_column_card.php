@@ -4,9 +4,18 @@
  * 建築物詳細ページでコラムがある場合に表示される（建築物情報カード内）
  */
 
-// 小見出しの表示（H2タグでSEO強化）
-$columnTitle = !empty($building['column_title']) 
-    ? htmlspecialchars($building['column_title'], ENT_QUOTES, 'UTF-8')
+// 言語別のタイトル/本文（buildings_table_4対応）
+$lang = $lang ?? 'ja';
+$rawColumnTitle = ($lang === 'en')
+    ? ($building['column_titleEn'] ?? '')
+    : ($building['column_title'] ?? '');
+$rawColumnText = ($lang === 'en')
+    ? ($building['building_column_textEn'] ?? '')
+    : ($building['building_column_text'] ?? '');
+
+// タイトル表示（未設定時はデフォルト文言）
+$columnTitle = !empty($rawColumnTitle)
+    ? htmlspecialchars($rawColumnTitle, ENT_QUOTES, 'UTF-8')
     : ($lang === 'ja' ? 'この建築について' : 'About This Building');
 ?>
 
@@ -15,7 +24,7 @@ $columnTitle = !empty($building['column_title'])
     <!-- 吹き出しラッパー -->
     <div class="speech-bubble-wrapper">
         <!-- タイトル + ロボット（吹き出しの上に表示） -->
-        <?php if (!empty($building['column_title'])): ?>
+        <?php if (!empty($rawColumnTitle)): ?>
             <div class="pattern6-header">
                 <div class="catchphrase">
                     <?php echo $columnTitle; ?>
@@ -29,7 +38,7 @@ $columnTitle = !empty($building['column_title'])
         <div class="speech-bubble-top-right column-content">
         <?php
         // コラム本文の取得
-        $columnText = $building['building_column_text'] ?? '';
+        $columnText = $rawColumnText;
         
         // Markdown形式: 空行（連続した改行）で段落を分割
         // \r\n（Windows）と\n（Unix）の両方に対応、複数の連続した改行にも対応

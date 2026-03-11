@@ -452,7 +452,7 @@
                         <?php
                         try {
                             $db = getDB();
-                            $tables = ['buildings_table_3', 'building_architects', 'architect_compositions_2', 'individual_architects_3'];
+                            $tables = ['buildings_table_4', 'building_architects', 'architect_compositions_2', 'individual_architects_3'];
                             echo '<ul>';
                             foreach ($tables as $table) {
                                 $stmt = $db->prepare("SELECT COUNT(*) FROM $table");
@@ -462,21 +462,21 @@
                             }
                             
                             // 座標がある建築物数を確認
-                            $coordSql = "SELECT COUNT(*) FROM buildings_table_3 WHERE lat IS NOT NULL AND lng IS NOT NULL";
+                            $coordSql = "SELECT COUNT(*) FROM buildings_table_4 WHERE lat IS NOT NULL AND lng IS NOT NULL";
                             $coordStmt = $db->prepare($coordSql);
                             $coordStmt->execute();
                             $buildingsWithCoords = $coordStmt->fetchColumn();
                             echo "<li>座標がある建築物: $buildingsWithCoords 件</li>";
                             
                             // locationがある建築物数を確認
-                            $locationSql = "SELECT COUNT(*) FROM buildings_table_3 WHERE location IS NOT NULL AND location != ''";
+                            $locationSql = "SELECT COUNT(*) FROM buildings_table_4 WHERE location IS NOT NULL AND location != ''";
                             $locationStmt = $db->prepare($locationSql);
                             $locationStmt->execute();
                             $buildingsWithLocation = $locationStmt->fetchColumn();
                             echo "<li>locationがある建築物: $buildingsWithLocation 件</li>";
                             
                             // 両方の条件を満たす建築物数を確認
-                            $bothSql = "SELECT COUNT(*) FROM buildings_table_3 WHERE lat IS NOT NULL AND lng IS NOT NULL AND location IS NOT NULL AND location != ''";
+                            $bothSql = "SELECT COUNT(*) FROM buildings_table_4 WHERE lat IS NOT NULL AND lng IS NOT NULL AND location IS NOT NULL AND location != ''";
                             $bothStmt = $db->prepare($bothSql);
                             $bothStmt->execute();
                             $buildingsWithBoth = $bothStmt->fetchColumn();

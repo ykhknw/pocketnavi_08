@@ -114,7 +114,7 @@ class SitemapGenerator {
         try {
             $sql = "
                 SELECT slug, updated_at, created_at
-                FROM buildings_table_3 
+                FROM buildings_table_4 
                 WHERE slug IS NOT NULL AND slug != ''
                 ORDER BY updated_at DESC, created_at DESC
             ";

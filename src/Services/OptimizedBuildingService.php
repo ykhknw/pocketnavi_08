@@ -13,7 +13,7 @@ class OptimizedBuildingService {
     
     public function __construct($db) {
         $this->db = $db;
-        $this->buildings_table = 'buildings_table_3';
+        $this->buildings_table = 'buildings_table_4';
         $this->building_architects_table = 'building_architects';
         $this->architect_compositions_table = 'architect_compositions_2';
         $this->individual_architects_table = 'individual_architects_3';

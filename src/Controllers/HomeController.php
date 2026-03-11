@@ -27,7 +27,7 @@ class HomeController {
             $pdo = getDatabaseConnection();
             
             // 検索クエリの構築
-            $sql = "SELECT * FROM buildings_table_3 WHERE 1=1";
+            $sql = "SELECT * FROM buildings_table_4 WHERE 1=1";
             $params = [];
             
             if (!empty($query)) {
@@ -112,7 +112,7 @@ class HomeController {
             $pdo = getDatabaseConnection();
             
             // 建物情報の取得
-            $stmt = $pdo->prepare("SELECT * FROM buildings_table_3 WHERE uid = ?");
+            $stmt = $pdo->prepare("SELECT * FROM buildings_table_4 WHERE uid = ?");
             $stmt->execute([$slug]);
             $building = $stmt->fetch();
             

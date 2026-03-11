@@ -9,7 +9,7 @@ require_once __DIR__ . '/../Utils/Config.php';
  */
 class BuildingService {
     private $db;
-    private $buildings_table = 'buildings_table_3';
+    private $buildings_table = 'buildings_table_4';
     private $building_architects_table = 'building_architects';
     private $architect_compositions_table = 'architect_compositions_2';
     private $individual_architects_table = 'individual_architects_3';
@@ -219,6 +219,8 @@ class BuildingService {
                    b.youtubeUrl,
                    b.building_column_text,
                    b.column_title,
+                   b.building_column_textEn,
+                   b.column_titleEn,
                    b.created_at,
                    b.updated_at,
                    0 as likes,

@@ -390,7 +390,12 @@ $showLikes = ConfigManager::get('display.show_likes', true);
     </div>
     
     <!-- 建築物コラムセクション（建築物詳細ページでのみ表示） -->
-    <?php if (isset($buildingSlug) && !empty($buildingSlug) && !empty($building['building_column_text'])): ?>
+    <?php
+    $columnTextLocalized = ($lang ?? 'ja') === 'en'
+        ? ($building['building_column_textEn'] ?? '')
+        : ($building['building_column_text'] ?? '');
+    ?>
+    <?php if (isset($buildingSlug) && !empty($buildingSlug) && !empty($columnTextLocalized)): ?>
         <?php include 'src/Views/includes/building_column_card.php'; ?>
     <?php endif; ?>
 </div>

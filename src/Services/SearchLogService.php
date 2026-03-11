@@ -351,7 +351,7 @@ class SearchLogService {
     private function getBuildingDataByQuery($query) {
         $sql = "
             SELECT building_id, title, titleEn, slug
-            FROM buildings_table_3
+            FROM buildings_table_4
             WHERE title = ? OR titleEn = ? OR slug = ?
             LIMIT 1
         ";

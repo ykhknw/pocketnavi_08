@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         try {
             // 建築物の存在確認
-            $stmt = $pdo->prepare("SELECT building_id, slug, uid, title FROM buildings_table_3 WHERE slug = ? OR uid = ? LIMIT 1");
+            $stmt = $pdo->prepare("SELECT building_id, slug, uid, title FROM buildings_table_4 WHERE slug = ? OR uid = ? LIMIT 1");
             $stmt->execute([$buildingSlug, $buildingSlug]);
             $building = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 } else {
                     // 保存処理
                     $stmt = $pdo->prepare("
-                        UPDATE buildings_table_3 
+                        UPDATE buildings_table_4 
                         SET building_column_text = :building_column_text,
                             column_title = :column_title,
                             updated_at = NOW()
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 strpos($e->getMessage(), "Unknown column") !== false) {
                 $message = '⚠️ エラー: データベースにコラムカラムが存在しません。以下のSQLを実行してください：<br><br>' .
                           '<code style="background: #f5f5f5; padding: 10px; display: block; border-radius: 4px;">' .
-                          'ALTER TABLE buildings_table_3<br>' .
+                          'ALTER TABLE buildings_table_4<br>' .
                           'ADD COLUMN `building_column_text` MEDIUMTEXT NULL COMMENT \'建築物に関するコラム本文（1000文字前後、最大16MB）\',<br>' .
                           'ADD COLUMN `column_title` VARCHAR(255) NULL COMMENT \'コラムの小見出し（建築物ごとに個別設定）\';' .
                           '</code>';
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['slug'])) {
         try {
             $stmt = $pdo->prepare("
                 SELECT building_id, slug, uid, title, building_column_text, column_title 
-                FROM buildings_table_3 
+                FROM buildings_table_4 
                 WHERE slug = ? OR uid = ? 
                 LIMIT 1
             ");
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['slug'])) {
                 strpos($e->getMessage(), "Unknown column") !== false) {
                 $message = '⚠️ エラー: データベースにコラムカラムが存在しません。以下のSQLを実行してください：<br><br>' .
                           '<code style="background: #f5f5f5; padding: 10px; display: block; border-radius: 4px;">' .
-                          'ALTER TABLE buildings_table_3<br>' .
+                          'ALTER TABLE buildings_table_4<br>' .
                           'ADD COLUMN `building_column_text` MEDIUMTEXT NULL COMMENT \'建築物に関するコラム本文（1000文字前後、最大16MB）\',<br>' .
                           'ADD COLUMN `column_title` VARCHAR(255) NULL COMMENT \'コラムの小見出し（建築物ごとに個別設定）\';' .
                           '</code>';

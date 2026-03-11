@@ -250,6 +250,8 @@ function transformBuildingData($row, $lang = 'ja') {
         'youtubeUrl' => $row['youtubeUrl'] ?? '',
         'building_column_text' => $row['building_column_text'] ?? '',
         'column_title' => $row['column_title'] ?? '',
+        'building_column_textEn' => $row['building_column_textEn'] ?? '',
+        'column_titleEn' => $row['column_titleEn'] ?? '',
         'architects' => $architects,
         // SEO用に元の文字列データも保持
         'architectJa' => $row['architectJa'] ?? '',
@@ -653,19 +655,19 @@ function debugDatabase() {
     
     try {
         // 建築物の総数
-        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_3");
+        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_4");
         $buildingCount = $stmt->fetch()['total'];
         
         // 座標がある建築物の数
-        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_3 WHERE lat IS NOT NULL AND lng IS NOT NULL");
+        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_4 WHERE lat IS NOT NULL AND lng IS NOT NULL");
         $buildingWithCoords = $stmt->fetch()['total'];
         
         // 東京を含む建築物の数
-        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_3 WHERE location LIKE '%東京%' OR prefectures LIKE '%東京%'");
+        $stmt = $db->query("SELECT COUNT(*) as total FROM buildings_table_4 WHERE location LIKE '%東京%' OR prefectures LIKE '%東京%'");
         $tokyoBuildings = $stmt->fetch()['total'];
         
         // サンプルデータの確認
-        $stmt = $db->query("SELECT building_id, title, location, prefectures, lat, lng FROM buildings_table_3 LIMIT 5");
+        $stmt = $db->query("SELECT building_id, title, location, prefectures, lat, lng FROM buildings_table_4 LIMIT 5");
         $sampleData = $stmt->fetchAll();
         
         return [

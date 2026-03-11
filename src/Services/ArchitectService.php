@@ -11,7 +11,7 @@ class ArchitectService {
     private $individual_architects_table = 'individual_architects_3';
     private $building_architects_table = 'building_architects';
     private $architect_compositions_table = 'architect_compositions_2';
-    private $buildings_table = 'buildings_table_3';
+    private $buildings_table = 'buildings_table_4';
     
     public function __construct() {
         // データベース接続を取得
