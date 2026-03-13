@@ -1,4 +1,7 @@
 <?php
+// タイムアウト設定を短縮（外部リソースへの接続タイムアウト）
+ini_set('default_socket_timeout', 10);
+
 // === 詳細パフォーマンス測定 ===
 $_perf = ['start' => microtime(true), 'points' => []];
 function markTime($label) {
@@ -46,6 +49,7 @@ if (file_exists(__DIR__ . '/src/Security/UnifiedSecurityHeaders.php')) {
     
     $securityHeaders->sendHeaders();
 }
+markTime('After Security Headers');
 
 // セキュアエラーハンドリングの設定（一時的に無効化）
 if (file_exists(__DIR__ . '/src/Security/SecureErrorHandler.php') && false) {
@@ -114,6 +118,7 @@ if ($envLoaded) {
 } else {
     error_log("No .env file found, using system environment variables");
 }
+markTime('After Env Load');
 
 // ============================================================================
 // データベース接続の設定
@@ -176,6 +181,7 @@ try {
 } catch (Exception $e) {
     error_log("Pre-connection test failed: " . $e->getMessage());
 }
+markTime('After DB Connection');
 
 // ============================================================================
 // 既存システムとの互換性を保つための設定
@@ -221,6 +227,7 @@ try {
     } catch (Exception $e) {
         error_log("Final database connection test failed: " . $e->getMessage());
     }
+    markTime('After Functions Load');
     
 } catch (Exception $e) {
     error_log("Functions.php loading failed: " . $e->getMessage());
@@ -283,14 +290,20 @@ class PocketNaviSafeApp {
 
         global $_perf;  // 追加
 
+        markTime('App: Constructor Start');
+        
         $this->debugMode = isset($_GET['debug']) && ($_GET['debug'] === '1' || $_GET['debug'] === 'true');
         $this->cacheEnabled = isset($_GET['cache']) ? $_GET['cache'] === '1' : true; // デフォルトでキャッシュ有効
         
+        // キャッシュ状態をログに出力
+        error_log("Cache enabled: " . ($this->cacheEnabled ? 'true' : 'false') . " (cache parameter: " . ($_GET['cache'] ?? 'not_set') . ")");
 
         // デバッグモードの確認（ログ出力）
         if ($this->debugMode) {
             error_log("Debug mode activated via URL parameter: " . ($_GET['debug'] ?? 'not_set'));
         }
+        
+        markTime('App: Before Cache Service Init');
         
         // キャッシュ機能付きサービスを初期化
         try {
@@ -309,11 +322,21 @@ class PocketNaviSafeApp {
             $this->cachedBuildingService = null;
         }
         
+        markTime('App: After Cache Service Init');
+        
+        markTime('App: Before Initialize Search Params');
         $this->initializeSearchParameters();
+        markTime('App: After Initialize Search Params');
 
+        markTime('App: Before Perform Search');
         $this->performSearch();
+        markTime('App: After Perform Search');
 
+        markTime('App: Before Get Popular Searches');
         $this->getPopularSearches();
+        markTime('App: After Get Popular Searches');
+        
+        markTime('App: Constructor End');
 
 
     }
@@ -392,7 +415,35 @@ class PocketNaviSafeApp {
             } elseif ($this->searchParams['userLat'] !== null && $this->searchParams['userLng'] !== null) {
                 $this->searchResult = $this->searchByLocation($limit);
             } else {
-                $this->searchResult = $this->searchWithMultipleConditions($limit);
+                // フィルターなしの全件検索をチェック
+                $hasFilters = !empty($this->searchParams['query']) || 
+                             !empty($this->searchParams['prefectures']) || 
+                             !empty($this->searchParams['completionYears']) ||
+                             $this->searchParams['hasPhotos'] || 
+                             $this->searchParams['hasVideos'];
+                
+                // フィルターなしの場合は、IDが大きい順に建築物を表示（ページネーション対応）
+                if (!$hasFilters) {
+                    // トップページ用：IDが小さい順に建築物を取得
+                    if ($this->cachedBuildingService) {
+                        // BuildingServiceを直接使用してID順に取得
+                        require_once __DIR__ . '/src/Services/BuildingService.php';
+                        $buildingService = new BuildingService();
+                        $this->searchResult = $buildingService->getBuildingsOrderedById($this->searchParams['page'], $this->lang, $limit);
+                        $this->searchResult['isHomePage'] = true;
+                    } else {
+                        // フォールバック：空の結果を返す
+                        $this->searchResult = [
+                            'buildings' => [],
+                            'total' => 0,
+                            'totalPages' => 0,
+                            'currentPage' => 1,
+                            'isHomePage' => true
+                        ];
+                    }
+                } else {
+                    $this->searchResult = $this->searchWithMultipleConditions($limit);
+                }
             }
         } catch (Exception $e) {
             error_log("Search error: " . $e->getMessage());
@@ -546,6 +597,8 @@ class PocketNaviSafeApp {
      * 複数条件による検索
      */
     private function searchWithMultipleConditions($limit) {
+        markTime('Search: Before Prefecture Log');
+        
         // 都道府県ページ閲覧ログを記録（都道府県パラメータのみの場合）
         if (!empty($this->searchParams['prefectures']) && empty($this->searchParams['query']) && empty($this->searchParams['completionYears'])) {
             try {
@@ -571,8 +624,10 @@ class PocketNaviSafeApp {
             }
         }
         
+        markTime('Search: Before CachedBuildingService Search');
+        
         if ($this->cachedBuildingService) {
-            return $this->cachedBuildingService->searchWithMultipleConditions(
+            $result = $this->cachedBuildingService->searchWithMultipleConditions(
                 $this->searchParams['query'], 
                 $this->searchParams['completionYears'], 
                 $this->searchParams['prefectures'], 
@@ -583,7 +638,13 @@ class PocketNaviSafeApp {
                 $this->lang, 
                 $limit
             );
+            
+            markTime('Search: After CachedBuildingService Search');
+            
+            return $result;
         } else {
+            markTime('Search: Before Fallback Search');
+            
             // フォールバック: 既存の関数を使用
             $result = searchBuildingsWithMultipleConditions(
                 $this->searchParams['query'], 
@@ -602,12 +663,14 @@ class PocketNaviSafeApp {
                 $result['_cache_info'] = [
                     'hit' => false,
                     'reason' => 'cache_service_unavailable',
-                    'created' => time(),
-                    'expires' => time()
-                ];
-            }
+                'created' => time(),
+                'expires' => time()
+            ];
+        }
+        
+        markTime('Search: After Fallback Search');
             
-            return $result;
+        return $result;
         }
     }
     
@@ -645,6 +708,7 @@ class PocketNaviSafeApp {
         $currentPage = $this->searchResult['currentPage'];
         $currentBuilding = $this->searchResult['currentBuilding'] ?? null;
         $architectInfo = $this->searchResult['architectInfo'] ?? null;
+        $isHomePage = $this->searchResult['isHomePage'] ?? false;
         
 
         // 元のindex.phpと同じ変数名を使用
@@ -1698,9 +1762,13 @@ document.head.appendChild(rippleStyle);
 // ============================================================================
 
 try {
+    markTime('Before App Init');
     $app = new PocketNaviSafeApp();
+    markTime('After App Init');
 
+    markTime('Before View Render');
     $app->run();
+    markTime('After View Render');
 
 } catch (Exception $e) {
     error_log("Application error: " . $e->getMessage());
@@ -1732,25 +1800,25 @@ try {
 
 
 // 7. 最後に統計を出力
-//register_shutdown_function(function() {
-//    global $_perf;
-//    $total = round((microtime(true) - $_perf['start']) * 1000, 2);
-//    
-//    error_log("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-//    error_log("⏱️  TIMING BREAKDOWN");
-//    error_log("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-//    
-//    $prev = 0;
-//    foreach ($_perf['points'] as $point) {
-//        $delta = $point['elapsed'] - $prev;
-//        error_log(sprintf("[%6.2fms] (+%6.2fms) %s", $point['elapsed'], $delta, $point['label']));
-//        $prev = $point['elapsed'];
-//    }
-//    
-//    error_log("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-//    error_log("Total: {$total}ms");
-//    error_log("━━━━━━━━━━━━━━━━━━━━━━━━━━");
-//});
+register_shutdown_function(function() {
+    global $_perf;
+    $total = round((microtime(true) - $_perf['start']) * 1000, 2);
+    
+    error_log("========================================");
+    error_log("TIMING BREAKDOWN");
+    error_log("========================================");
+    
+    $prev = 0;
+    foreach ($_perf['points'] as $point) {
+        $delta = $point['elapsed'] - $prev;
+        error_log(sprintf("[%6.2fms] (+%6.2fms) %s", $point['elapsed'], $delta, $point['label']));
+        $prev = $point['elapsed'];
+    }
+    
+    error_log("========================================");
+    error_log("Total: {$total}ms");
+    error_log("========================================");
+});
 
 
 

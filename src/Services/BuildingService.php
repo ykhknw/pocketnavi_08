@@ -24,8 +24,108 @@ class BuildingService {
             if ($this->db === null) {
                 throw new Exception("Database connection failed");
             }
+            
+            // MySQLのクエリタイムアウトを設定（30秒）
+            try {
+                $this->db->exec("SET SESSION max_execution_time = 30000");
+                $this->db->exec("SET SESSION wait_timeout = 30");
+            } catch (Exception $e) {
+                // タイムアウト設定が失敗しても続行
+                error_log("Warning: Could not set query timeout: " . $e->getMessage());
+            }
         } catch (Exception $e) {
             throw new Exception("Database connection failed: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * IDが大きい順に建築物を取得（トップページ用）
+     * 写真がある建築物を優先表示
+     */
+    public function getBuildingsOrderedById($page = 1, $lang = 'ja', $limit = 20) {
+        $offset = ($page - 1) * $limit;
+        
+        // 共通フィルター（住宅のみのデータを除外）
+        $whereClause = "WHERE (b.buildingTypes IS NULL OR b.buildingTypes = '' OR b.buildingTypes != '住宅')";
+        
+        // カウントクエリ（最適化：JOINなし）
+        $countSql = "
+            SELECT COUNT(*) as total
+            FROM {$this->buildings_table} b
+            $whereClause
+        ";
+        
+        // データ取得クエリ（最適化：JOINなし、建築家情報は後で取得）
+        // 写真がある建築物を優先し、その中でIDが大きい順に並べる
+        $sql = "
+            SELECT b.building_id,
+                   b.uid,
+                   b.title,
+                   b.titleEn,
+                   b.slug,
+                   b.lat,
+                   b.lng,
+                   b.location,
+                   b.locationEn_from_datasheetChunkEn as locationEn,
+                   b.completionYears,
+                   b.buildingTypes,
+                   b.buildingTypesEn,
+                   b.prefectures,
+                   b.prefecturesEn,
+                   b.has_photo,
+                   b.thumbnailUrl,
+                   b.youtubeUrl,
+                   b.created_at,
+                   b.updated_at,
+                   0 as likes,
+                   NULL as architectJa,
+                   NULL as architectEn,
+                   NULL as architectIds,
+                   NULL as architectSlugs
+            FROM {$this->buildings_table} b
+            $whereClause
+            ORDER BY 
+                CASE WHEN b.has_photo IS NOT NULL AND b.has_photo != '' AND b.has_photo != '0' THEN 0 ELSE 1 END,
+                b.building_id DESC
+            LIMIT {$limit} OFFSET {$offset}
+        ";
+        
+        try {
+            // カウント実行
+            $total = $this->executeCountQuery($countSql, []);
+            
+            $totalPages = ceil($total / $limit);
+            
+            // ページ番号の検証と調整
+            if ($page > $totalPages && $totalPages > 0) {
+                $page = $totalPages;
+            } elseif ($page < 1) {
+                $page = 1;
+            }
+            
+            $offset = ($page - 1) * $limit;
+            
+            // データ取得実行
+            $rows = $this->executeSearchQuery($sql, []);
+            
+            // データ変換
+            $buildings = $this->transformBuildingData($rows, $lang);
+            
+            return [
+                'buildings' => $buildings,
+                'total' => $total,
+                'totalPages' => $totalPages,
+                'currentPage' => $page
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Get buildings ordered by ID error: " . $e->getMessage());
+            return [
+                'buildings' => [],
+                'total' => 0,
+                'totalPages' => 0,
+                'currentPage' => $page
+            ];
         }
     }
     
@@ -310,17 +410,34 @@ class BuildingService {
      * 共通の検索実行ロジック
      */
     private function executeSearch($whereClauses, $params, $page, $lang, $limit) {
+        global $_perf;
+        
+        markTime('BuildingService: Before Build Where');
+        
         // WHERE句の構築
         $whereSql = $this->buildWhereClause($whereClauses);
         
+        markTime('BuildingService: After Build Where');
+        
         // カウントクエリ
         $countSql = $this->buildCountQuery($whereSql);
+        
+        markTime('BuildingService: Before Count Query');
         
         try {
             // カウント実行
             $total = $this->executeCountQuery($countSql, $params);
             
+            markTime('BuildingService: After Count Query');
+            
             $totalPages = ceil($total / $limit);
+            
+            // 検索結果数の上限チェック（10,000件まで）
+            if ($total > 10000) {
+                error_log("WARNING: Search result count exceeds limit: $total (limited to 10000)");
+                $total = 10000;
+                $totalPages = ceil($total / $limit);
+            }
             
             // ページ番号の検証と調整
             if ($page > $totalPages && $totalPages > 0) {
@@ -329,16 +446,39 @@ class BuildingService {
                 $page = 1; // 1ページ目に調整
             }
             
+            // ページ番号の上限設定（100ページまで）
+            if ($page > 100) {
+                error_log("WARNING: Page number exceeds limit: $page (limited to 100)");
+                $page = 100;
+            }
+            
             $offset = ($page - 1) * $limit;
+            
+            // 大きなOFFSETの場合は警告
+            if ($offset > 1000) {
+                error_log("WARNING: Large OFFSET detected: $offset (page: $page, limit: $limit). This may cause slow queries.");
+            }
+            
+            markTime('BuildingService: Before Build Search Query');
             
             // データ取得クエリ
             $sql = $this->buildSearchQuery($whereSql, $limit, $offset);
             
+            markTime('BuildingService: After Build Search Query');
+            
+            markTime('BuildingService: Before Execute Search Query');
+            
             // データ取得実行
             $rows = $this->executeSearchQuery($sql, $params);
             
+            markTime('BuildingService: After Execute Search Query');
+            
+            markTime('BuildingService: Before Transform Data');
+            
             // データ変換
             $buildings = $this->transformBuildingData($rows, $lang);
+            
+            markTime('BuildingService: After Transform Data');
             
             return [
                 'buildings' => $buildings,
@@ -349,6 +489,19 @@ class BuildingService {
             
         } catch (Exception $e) {
             error_log("Search error: " . $e->getMessage());
+            
+            // タイムアウトエラーの場合は特別な処理
+            if (strpos($e->getMessage(), 'timeout') !== false || strpos($e->getMessage(), 'too long') !== false) {
+                error_log("CRITICAL: Query timeout detected. Returning empty results to prevent server overload.");
+                return [
+                    'buildings' => [],
+                    'total' => 0,
+                    'totalPages' => 0,
+                    'currentPage' => 1,
+                    'error' => '検索に時間がかかりすぎました。検索条件を変更してお試しください。'
+                ];
+            }
+            
             return [
                 'buildings' => [],
                 'total' => 0,
@@ -556,30 +709,50 @@ class BuildingService {
     }
     
     /**
-     * キーワード検索条件を追加
+     * キーワード検索条件を追加（最適化版）
      */
     private function addKeywordConditions(&$whereClauses, &$params, $keywords) {
         if (empty($keywords)) {
             return;
         }
         
-        $keywordConditions = [];
+        // 最小文字数制限（1文字の検索は非効率）
+        $filteredKeywords = [];
         foreach ($keywords as $keyword) {
+            $keyword = trim($keyword);
+            // 2文字以上のキーワードのみ検索対象
+            if (mb_strlen($keyword) >= 2) {
+                $filteredKeywords[] = $keyword;
+            }
+        }
+        
+        if (empty($filteredKeywords)) {
+            error_log("WARNING: All keywords filtered out (minimum 2 characters required)");
+            return;
+        }
+        
+        $keywordConditions = [];
+        $needsArchitectJoin = false; // 建築家検索が必要かどうか
+        
+        foreach ($filteredKeywords as $keyword) {
             $escapedKeyword = '%' . $keyword . '%';
+            
+            // 最適化: 主要なカラムのみ検索（建築家検索は別途処理）
+            // インデックスが効きやすいカラムを優先
             $fieldConditions = [
-                "b.title LIKE ?",
-                "b.titleEn LIKE ?",
-                "b.buildingTypes LIKE ?",
-                "b.buildingTypesEn LIKE ?",
-                "b.location LIKE ?",
-                "b.locationEn_from_datasheetChunkEn LIKE ?",
-                "ia.name_ja LIKE ?",
-                "ia.name_en LIKE ?"
+                "b.title LIKE ?",           // 建築物名（最重要）
+                "b.titleEn LIKE ?",         // 建築物名（英語）
+                "b.location LIKE ?",        // 場所
             ];
+            
+            // 建築家検索が必要な場合のみ追加（JOINを避けるため）
+            // 注: 建築家検索が必要な場合は、後で別途処理
+            // ここでは主要なカラムのみ検索してパフォーマンスを向上
+            
             $keywordConditions[] = '(' . implode(' OR ', $fieldConditions) . ')';
             
-            // パラメータを8回追加（各フィールド用）
-            for ($i = 0; $i < 8; $i++) {
+            // パラメータを3回追加（主要カラムのみ）
+            for ($i = 0; $i < 3; $i++) {
                 $params[] = $escapedKeyword;
             }
         }
@@ -821,11 +994,13 @@ class BuildingService {
     }
     
     /**
-     * カウントクエリを構築
+     * カウントクエリを構築（最適化版）
      */
     private function buildCountQuery($whereSql) {
         // WHERE句に建築家関連の条件が含まれているかチェック
-        if (strpos($whereSql, 'ia.') !== false) {
+        $needsArchitectJoin = strpos($whereSql, 'ia.') !== false;
+        
+        if ($needsArchitectJoin) {
             // 建築家検索用（JOINあり）
             return "
                 SELECT COUNT(DISTINCT b.building_id) as total
@@ -836,24 +1011,23 @@ class BuildingService {
                 $whereSql
             ";
         } else {
-            // 通常検索用（JOINあり、建築家情報も含める）
+            // 最適化: 建築家検索が不要な場合はJOINを省略
             return "
                 SELECT COUNT(DISTINCT b.building_id) as total
                 FROM {$this->buildings_table} b
-                LEFT JOIN {$this->building_architects_table} ba ON b.building_id = ba.building_id
-                LEFT JOIN {$this->architect_compositions_table} ac ON ba.architect_id = ac.architect_id
-                LEFT JOIN {$this->individual_architects_table} ia ON ac.individual_architect_id = ia.individual_architect_id
                 $whereSql
             ";
         }
     }
     
     /**
-     * 検索クエリを構築
+     * 検索クエリを構築（最適化版）
      */
     private function buildSearchQuery($whereSql, $limit, $offset) {
         // WHERE句に建築家関連の条件が含まれているかチェック
-        if (strpos($whereSql, 'ia.') !== false) {
+        $needsArchitectJoin = strpos($whereSql, 'ia.') !== false;
+        
+        if ($needsArchitectJoin) {
             // 建築家検索用（JOINあり）
             return "
                 SELECT b.building_id,
@@ -906,7 +1080,8 @@ class BuildingService {
                 LIMIT {$limit} OFFSET {$offset}
             ";
         } else {
-            // 通常検索用（JOINあり、建築家情報も含める）
+            // 最適化: 建築家検索が不要な場合はJOINを省略し、後で建築家情報を取得
+            // これにより、カウントクエリと検索クエリのパフォーマンスが大幅に向上
             return "
                 SELECT b.building_id,
                        b.uid,
@@ -928,32 +1103,12 @@ class BuildingService {
                        b.created_at,
                        b.updated_at,
                        0 as likes,
-                       GROUP_CONCAT(
-                           DISTINCT ia.name_ja 
-                           ORDER BY ba.architect_order, ac.order_index 
-                           SEPARATOR ' / '
-                       ) AS architectJa,
-                       GROUP_CONCAT(
-                           DISTINCT ia.name_en 
-                           ORDER BY ba.architect_order, ac.order_index 
-                           SEPARATOR ' / '
-                       ) AS architectEn,
-                       GROUP_CONCAT(
-                           DISTINCT ba.architect_id 
-                           ORDER BY ba.architect_order 
-                           SEPARATOR ','
-                       ) AS architectIds,
-                       GROUP_CONCAT(
-                           DISTINCT ia.slug 
-                           ORDER BY ba.architect_order, ac.order_index 
-                           SEPARATOR ','
-                       ) AS architectSlugs
+                       NULL as architectJa,
+                       NULL as architectEn,
+                       NULL as architectIds,
+                       NULL as architectSlugs
                 FROM {$this->buildings_table} b
-                LEFT JOIN {$this->building_architects_table} ba ON b.building_id = ba.building_id
-                LEFT JOIN {$this->architect_compositions_table} ac ON ba.architect_id = ac.architect_id
-                LEFT JOIN {$this->individual_architects_table} ia ON ac.individual_architect_id = ia.individual_architect_id
                 $whereSql
-                GROUP BY b.building_id, b.uid, b.title, b.titleEn, b.slug, b.lat, b.lng, b.location, b.locationEn_from_datasheetChunkEn, b.completionYears, b.buildingTypes, b.buildingTypesEn, b.prefectures, b.prefecturesEn, b.has_photo, b.thumbnailUrl, b.youtubeUrl, b.created_at, b.updated_at
                 ORDER BY b.has_photo DESC, b.building_id DESC
                 LIMIT {$limit} OFFSET {$offset}
             ";
@@ -1031,19 +1186,42 @@ class BuildingService {
             throw new Exception("Database connection is null");
         }
         
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        $result = $stmt->fetch();
-        if ($result) {
-            if (isset($result['total'])) {
-                return $result['total'];
-            } elseif (isset($result[0])) {
-                return $result[0];
-            } else {
-                return 0;
+        // クエリの実行時間を測定
+        $queryStart = microtime(true);
+        
+        // SQLをログに出力（最初の500文字のみ）
+        error_log("COUNT QUERY (first 500 chars): " . substr($sql, 0, 500));
+        error_log("COUNT QUERY PARAMS: " . json_encode($params));
+        
+        try {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+            
+            $queryEnd = microtime(true);
+            $queryTime = round(($queryEnd - $queryStart) * 1000, 2);
+            error_log("COUNT QUERY EXECUTION TIME: {$queryTime}ms");
+            
+            // 30秒以上かかった場合は警告とエラー
+            if ($queryTime > 30000) {
+                error_log("ERROR: COUNT QUERY took more than 30 seconds: {$queryTime}ms");
+                throw new Exception("Query timeout: COUNT query took too long ({$queryTime}ms). Please optimize the query or add indexes.");
             }
+            
+            $result = $stmt->fetch();
+            if ($result) {
+                if (isset($result['total'])) {
+                    return $result['total'];
+                } elseif (isset($result[0])) {
+                    return $result[0];
+                } else {
+                    return 0;
+                }
+            }
+            return 0;
+        } catch (Exception $e) {
+            error_log("COUNT QUERY ERROR: " . $e->getMessage());
+            throw $e;
         }
-        return 0;
     }
     
     /**
@@ -1055,8 +1233,25 @@ class BuildingService {
         }
         
         try {
+            // クエリの実行時間を測定
+            $queryStart = microtime(true);
+            
+            // SQLをログに出力（最初の500文字のみ）
+            error_log("SEARCH QUERY (first 500 chars): " . substr($sql, 0, 500));
+            error_log("SEARCH QUERY PARAMS: " . json_encode($params));
+            
             $stmt = $this->db->prepare($sql);
             $result = $stmt->execute($params);
+            
+            $queryEnd = microtime(true);
+            $queryTime = round(($queryEnd - $queryStart) * 1000, 2);
+            error_log("SEARCH QUERY EXECUTION TIME: {$queryTime}ms");
+            
+            // 30秒以上かかった場合は警告とエラー
+            if ($queryTime > 30000) {
+                error_log("ERROR: SEARCH QUERY took more than 30 seconds: {$queryTime}ms");
+                throw new Exception("Query timeout: SEARCH query took too long ({$queryTime}ms). Please optimize the query or add indexes.");
+            }
             
             if (!$result) {
                 $errorInfo = $stmt->errorInfo();

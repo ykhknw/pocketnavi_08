@@ -92,8 +92,9 @@
 
 #photoGalleryCard .carousel-control-prev-icon,
 #photoGalleryCard .carousel-control-next-icon {
-    width: 25px;
-    height: 25px;
+    width: 32.5px; /* 1.3倍に拡大（25px × 1.3 = 32.5px） */
+    height: 32.5px; /* 1.3倍に拡大（25px × 1.3 = 32.5px） */
+    filter: drop-shadow(0.5px 0 0 currentColor) drop-shadow(-0.5px 0 0 currentColor) drop-shadow(0 0.5px 0 currentColor) drop-shadow(0 -0.5px 0 currentColor); /* 太字効果 */
 }
 
 /* 写真が1枚の場合は矢印を非表示（JavaScriptで制御するため、このCSSルールは削除） */

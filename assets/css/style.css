@@ -198,11 +198,13 @@ nav[aria-label="Page navigation"] .pagination .page-link,
     /* ボタンサイズを大きく */
     padding: 0.75rem 1rem !important;
     min-width: 48px !important;
-    min-height: 48px !important;
+    min-height: 62px !important; /* 1.3倍に拡大（48px × 1.3 ≈ 62px） */
+    height: 62px !important; /* 高さを明示的に62pxに設定（1.3倍） */
+    box-sizing: border-box !important; /* パディングとボーダーを含めた高さ */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 1rem !important;
+    font-size: 1.5rem !important;
     font-weight: 500 !important;
     border-radius: 0.5rem !important;
     margin: 0 0.25rem !important;
@@ -220,7 +222,16 @@ nav[aria-label="Page navigation"] .pagination .page-item.active span.page-link.a
     color: #ffffff !important;
     font-weight: 600 !important;
     box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
-    transform: scale(1.05) !important;
+    transform: none !important; /* サイズを統一 */
+    /* アクティブ時も通常ボタンと同じ寸法を強制 */
+    padding: 0.75rem 1rem !important;
+    min-width: 48px !important;
+    min-height: 62px !important; /* 1.3倍に拡大（48px × 1.3 ≈ 62px） */
+    height: 62px !important; /* 高さを明示的に62pxに設定（1.3倍） */
+    box-sizing: border-box !important; /* パディングとボーダーを含めた高さ */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 nav[aria-label="Page navigation"] .pagination .page-link:hover,
@@ -241,7 +252,7 @@ nav[aria-label="Page navigation"] .pagination .page-item.active span.page-link.a
     background-color: #0b5ed7 !important;
     border-color: #0b5ed7 !important;
     color: #ffffff !important;
-    transform: scale(1.05) !important;
+    transform: none !important; /* サイズを統一 */
     box-shadow: 0 4px 8px rgba(13, 110, 253, 0.4) !important;
 }
 
@@ -256,15 +267,17 @@ ul.pagination li.page-item.active span.page-link.active-page {
     font-weight: 600 !important;
     padding: 0.75rem 1rem !important;
     min-width: 48px !important;
-    min-height: 48px !important;
+    min-height: 62px !important; /* 1.3倍に拡大（48px × 1.3 ≈ 62px） */
+    height: 62px !important; /* 高さを明示的に62pxに設定（1.3倍） */
+    box-sizing: border-box !important; /* パディングとボーダーを含めた高さ */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 1rem !important;
+    font-size: 1.5rem !important;
     border-radius: 0.5rem !important;
     margin: 0 0.25rem !important;
     box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
-    transform: scale(1.05) !important;
+    transform: none !important; /* サイズを統一 */
 }
 
 /* 省略記号（...）のスタイル */
@@ -280,8 +293,8 @@ ul.pagination li.page-item.active span.page-link.active-page {
 
 /* ページネーション全体のレイアウト */
 .pagination {
-    margin: 2rem 0;
-    padding: 1rem 0;
+    margin: 1rem 0; /* 上下のマージンを2remから1remに縮小 */
+    padding: 0.5rem 0; /* 上下のパディングを1remから0.5remに縮小 */
 }
 
 .pagination .page-item {
@@ -648,11 +661,31 @@ footer {
 body .container-fluid .pagination .page-link {
     padding: 0.75rem 1rem !important;
     min-width: 48px !important;
-    min-height: 48px !important;
-    font-size: 1rem !important;
+    min-height: 62px !important; /* 1.3倍に拡大（48px × 1.3 ≈ 62px） */
+    height: 62px !important; /* 高さを明示的に62pxに設定（1.3倍） */
+    box-sizing: border-box !important; /* パディングとボーダーを含めた高さ */
+    font-size: 1.5rem !important;
     font-weight: 500 !important;
     border-radius: 0.5rem !important;
     margin: 0 0.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* 矢印ボタンの高さを数字ボタンと統一 */
+nav[aria-label="Page navigation"] .pagination .page-link.pagination-arrow,
+nav[aria-label="Page navigation"] .pagination li.page-item .page-link.pagination-arrow,
+.pagination .page-link.pagination-arrow,
+.pagination li.page-item .page-link.pagination-arrow,
+body .container-fluid .pagination .page-link.pagination-arrow,
+body .container-fluid .pagination li.page-item .page-link.pagination-arrow {
+    padding: 0.75rem 1rem !important;
+    min-width: 48px !important;
+    min-height: 62px !important; /* 1.3倍に拡大（48px × 1.3 ≈ 62px） */
+    height: 62px !important; /* 高さを明示的に62pxに設定（1.3倍） */
+    box-sizing: border-box !important; /* パディングとボーダーを含めた高さ */
+    line-height: 1 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -665,7 +698,7 @@ body .container-fluid .pagination .page-item.active span.page-link {
     color: #ffffff !important;
     font-weight: 600 !important;
     box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3) !important;
-    transform: scale(1.05) !important;
+    transform: none !important; /* サイズを統一 */
 }
 
 /* 遅延読み込み用のスタイルは削除 - ブラウザの自動最適化に任せる */

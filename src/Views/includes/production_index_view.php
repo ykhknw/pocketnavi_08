@@ -516,20 +516,30 @@ if (typeof CSRFManager === 'undefined') {
                 <!-- Building Cards -->
                 <div class="row" id="building-cards">
                     <?php if (empty($buildings)): ?>
-                        <div class="col-12">
-                            <div class="alert alert-info text-center">
-                                <?php echo $lang === 'ja' ? '建築物が見つかりませんでした。' : 'No buildings found.'; ?>
-                                <?php if ($query): ?>
-                                    <br><small>検索キーワード: "<?php echo htmlspecialchars($query); ?>"</small>
-                                <?php endif; ?>
-                                <?php if ($hasPhotos): ?>
-                                    <br><small>写真フィルター: 有効</small>
-                                <?php endif; ?>
-                                <?php if ($hasVideos): ?>
-                                    <br><small>動画フィルター: 有効</small>
-                                <?php endif; ?>
+                        <?php if (!empty($query) || !empty($prefectures) || !empty($completionYears) || $hasPhotos || $hasVideos || !empty($architectsSlug)): ?>
+                            <!-- 検索条件がある場合のみ「見つかりませんでした」を表示 -->
+                            <div class="col-12">
+                                <div class="alert alert-info text-center">
+                                    <?php echo $lang === 'ja' ? '建築物が見つかりませんでした。' : 'No buildings found.'; ?>
+                                    <?php if ($query): ?>
+                                        <br><small>検索キーワード: "<?php echo htmlspecialchars($query); ?>"</small>
+                                    <?php endif; ?>
+                                    <?php if ($hasPhotos): ?>
+                                        <br><small>写真フィルター: 有効</small>
+                                    <?php endif; ?>
+                                    <?php if ($hasVideos): ?>
+                                        <br><small>動画フィルター: 有効</small>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <!-- トップページ（フィルターなし）の場合は何も表示しない -->
+                            <div class="col-12">
+                                <div class="text-center text-muted py-5">
+                                    <p>検索フォームから建築物を検索してください。</p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php else: ?>
                         <?php foreach ($buildings as $index => $building): ?>
                             <div class="col-12 mb-4">
